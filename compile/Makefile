@@ -48,7 +48,9 @@ SYS =	blkcmp.c	blkequ.c	main.c		stacktrace.c	\
 	signal.c	signaln.c	sleep.c		sleep10.c	\
 	sleep100.c	sleep1000.c	sreset.c	suspend.c	\
 	unsleep.c	userret.c	wait.c		wakeup.c	\
-	write.c		xdone.c		pci.c		shutdown.c
+	write.c		xdone.c		pci.c		shutdown.c	\
+	printsegaddress.c
+
 
 TTY =	ttyalloc.c	ttycntl.c	ttygetc.c	ttyiin.c	\
 	ttyinit.c	ttynew.c	ttyopen.c	ttyputc.c	\
@@ -67,7 +69,7 @@ SYSOBJ = ${SYS:%.c=%.o}
 
 TTYOBJ = ${TTY:%.c=%.o}
 
-XOBJ = startup.o initialize.o intr.o clkint.o ctxsw.o
+XOBJ = startup.o initialize.o intr.o clkint.o ctxsw.o zfunction.o
 
 OBJ =	${COMOBJ} ${MONOBJ} ${SYSOBJ} ${TTYOBJ}		\
 	moncksum.o monclkint.o comint.o ethint.o montftp.o
@@ -133,13 +135,16 @@ tags: FRC
 	make -C ../config/ -f ../config/Makefile clean all
 
 ../h/conf.h ../sys/conf.c: ../config/config Configuration
-	../config/config; mv conf.c ../sys 
+	../config/config; mv conf.c ../sys
 
 ${LIB}/libxc.a: FRC
 	(cd ${LIB}/libxc; make install)
 
 intr.o: ../sys/intr.S
 	${CPP} ${SDEFS} ../sys/intr.S | ${AS} ${ASFLAGS} -o intr.o
+
+zfunction.o: ../sys/zfunction.S
+	${CPP} ${SDEFS} ../sys/zfunction.S | ${AS} ${ASFLAGS} -o zfunction.o
 
 clkint.o: ../sys/clkint.S
 	${CPP} ${SDEFS} ../sys/clkint.S | ${AS} ${ASFLAGS} -o clkint.o
@@ -152,7 +157,7 @@ ethint.o: ../mon/ethint.S
 
 startup.o: ../sys/startup.S Makefile
 	${CPP} ${SDEFS} -DBRELOC=${BRELOC} -DBOOTPLOC=${BOOTPLOC} \
-	../sys/startup.S | ${AS} ${ASFLAGS} -o startup.o 
+	../sys/startup.S | ${AS} ${ASFLAGS} -o startup.o
 
 moncksum.o: ../mon/moncksum.S
 	${CPP} ${SDEFS} ../mon/moncksum.S | ${AS} ${ASFLAGS} -o moncksum.o
@@ -166,7 +171,7 @@ montftp.o: ../mon/montftp.c
 comint.o: ../com/comint.S
 	${CPP} ${SDEFS} ../com/comint.S | ${AS} ${ASFLAGS} -o comint.o
 
-initialize.o: $(OBJ) startup.o 
+initialize.o: $(OBJ) startup.o
 	sh mkvers.sh
 	${CC} -c ${CFLAGS} -DVERSION=\""`cat version`"\" ../sys/initialize.c
 
@@ -177,7 +182,7 @@ ${COMOBJ}:
 ${SYSOBJ}:
 	 ${CC} ${CFLAGS} ../sys/`basename $@ .o`.[c]
 ${TTYOBJ}:
-	 ${CC} ${CFLAGS} ../tty/`basename $@ .o`.[c]	 
+	 ${CC} ${CFLAGS} ../tty/`basename $@ .o`.[c]
 FRC:
 #------------------------------------------------------------------------
 
@@ -385,8 +390,8 @@ kprintf.o: ../sys/kprintf.c /usr/include/stdc-predef.h ../h/conf.h \
  ../h/kernel.h ../h/systypes.h ../h/mem.h ../h/tty.h
 kputc.o: ../sys/kputc.c /usr/include/stdc-predef.h ../h/conf.h \
  ../h/kernel.h ../h/systypes.h ../h/mem.h ../h/tty.h
-main.o: ../sys/main.c /usr/include/stdc-predef.h ../h/conf.h \
- ../h/kernel.h ../h/systypes.h ../h/mem.h ../h/proc.h ../h/stdio.h
+main.o: ../sys/main.c /usr/include/stdc-predef.h ../h/stdio.h \
+ ../h/PA0funcs.h
 mark.o: ../sys/mark.c /usr/include/stdc-predef.h ../h/conf.h \
  ../h/kernel.h ../h/systypes.h ../h/mem.h ../h/mark.h
 mkpool.o: ../sys/mkpool.c /usr/include/stdc-predef.h ../h/conf.h \
@@ -403,6 +408,8 @@ pci.o: ../sys/pci.c /usr/include/stdc-predef.h ../h/conf.h ../h/kernel.h \
 poolinit.o: ../sys/poolinit.c /usr/include/stdc-predef.h ../h/conf.h \
  ../h/kernel.h ../h/systypes.h ../h/mem.h ../h/mark.h ../h/bufpool.h \
  ../h/stdio.h
+printsegaddress.o: ../sys/printsegaddress.c /usr/include/stdc-predef.h \
+ ../h/stdio.h ../h/PA0funcs.h
 putc.o: ../sys/putc.c /usr/include/stdc-predef.h ../h/conf.h \
  ../h/kernel.h ../h/systypes.h ../h/mem.h ../h/io.h
 queue.o: ../sys/queue.c /usr/include/stdc-predef.h ../h/conf.h \
