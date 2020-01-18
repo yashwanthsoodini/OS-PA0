@@ -4,14 +4,20 @@
 #include <kernel.h>
 #include <proc.h>
 #include <stdio.h>
+#include "lab0.h"
 
+extern int trace_sys_calls;
 /*------------------------------------------------------------------------
  *  receive  -  wait for a message and return it
  *------------------------------------------------------------------------
  */
 SYSCALL	receive()
 {
-	STATWORD ps;    
+	if (trace_sys_calls == 1) {
+	  syscalltrace_start(6);
+	}
+
+	STATWORD ps;
 	struct	pentry	*pptr;
 	WORD	msg;
 
@@ -24,5 +30,8 @@ SYSCALL	receive()
 	msg = pptr->pmsg;		/* retrieve message		*/
 	pptr->phasmsg = FALSE;
 	restore(ps);
+	if (trace_sys_calls == 1) {
+	  syscalltrace_end(6);
+	}
 	return(msg);
 }

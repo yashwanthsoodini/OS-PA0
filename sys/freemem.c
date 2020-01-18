@@ -1,9 +1,14 @@
 /* freemem.c - freemem */
 
+
 #include <conf.h>
 #include <kernel.h>
 #include <mem.h>
 #include <stdio.h>
+#include <proc.h>
+#include "lab0.h"
+
+extern int trace_sys_calls;
 
 /*------------------------------------------------------------------------
  *  freemem  --  free a memory block, returning it to memlist
@@ -11,7 +16,10 @@
  */
 SYSCALL	freemem(struct mblock *block, unsigned size)
 {
-	STATWORD ps;    
+	if (trace_sys_calls == 1) {
+	  syscalltrace_start(0);
+	}
+	STATWORD ps;
 	struct	mblock	*p, *q;
 	unsigned top;
 
@@ -42,5 +50,8 @@ SYSCALL	freemem(struct mblock *block, unsigned size)
 		q->mnext = p->mnext;
 	}
 	restore(ps);
+	if (trace_sys_calls == 1) {
+	  syscalltrace_end(0);
+	}
 	return(OK);
 }

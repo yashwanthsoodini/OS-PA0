@@ -4,9 +4,11 @@
 #include <kernel.h>
 #include <proc.h>
 #include <stdio.h>
+#include <lab0.h>
 
 static unsigned long	*esp;
 static unsigned long	*ebp;
+extern int trace_sys_calls;
 
 #define STKDETAIL
 
@@ -16,6 +18,9 @@ static unsigned long	*ebp;
  */
 SYSCALL stacktrace(int pid)
 {
+	if (trace_sys_calls == 1) {
+		syscalltrace_start(23);
+	}
 	struct pentry	*proc = &proctab[pid];
 	unsigned long	*sp, *fp;
 
@@ -52,5 +57,8 @@ SYSCALL stacktrace(int pid)
 		return SYSERR;
 	}
 #endif
+	if (trace_sys_calls == 1) {
+		syscalltrace_end(23);
+	}
 	return OK;
 }

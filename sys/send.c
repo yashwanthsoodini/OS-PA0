@@ -4,6 +4,9 @@
 #include <kernel.h>
 #include <proc.h>
 #include <stdio.h>
+#include "lab0.h"
+
+extern int trace_sys_calls;
 
 /*------------------------------------------------------------------------
  *  send  --  send a message to another process
@@ -11,7 +14,11 @@
  */
 SYSCALL	send(int pid, WORD msg)
 {
-	STATWORD ps;    
+	if (trace_sys_calls == 1) {
+	  syscalltrace_start(12);
+	}
+
+	STATWORD ps;
 	struct	pentry	*pptr;
 
 	disable(ps);
@@ -29,5 +36,8 @@ SYSCALL	send(int pid, WORD msg)
 		ready(pid, RESCHYES);
 	}
 	restore(ps);
+	if (trace_sys_calls == 1) {
+	  syscalltrace_end(12);
+	}
 	return(OK);
 }

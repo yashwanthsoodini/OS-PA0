@@ -60,12 +60,15 @@ struct	pentry	{
 	int	fildes[_NFILE];		/* file - device translation	*/
 	int	ppagedev;		/* pageing dgram device		*/
 	int	pwaitret;
+	int sys_call_freq[27];	/*frequency of each sys call invocation*/
+	long sys_call_start_time[27];	/*cumulative sum of start times of each sys call execution*/
+	long sys_call_end_time[27];	/*cumulative sum of end times of each sys call execution*/
 };
 
 
 extern	struct	pentry proctab[];
-extern	int	numproc;		/* currently active processes	*/
-extern	int	nextproc;		/* search point for free slot	*/
-extern	int	currpid;		/* currently executing process	*/
-
+extern	int	numproc;					/* currently active processes	*/
+extern	int	nextproc;					/* search point for free slot	*/
+extern	int	currpid;					/* currently executing process	*/
+				int	trace_sys_calls;	/* flag indicating whether sys-calls are getting traced*/
 #endif

@@ -6,6 +6,9 @@
 #include <q.h>
 #include <sem.h>
 #include <stdio.h>
+#include "lab0.h"
+
+extern int trace_sys_calls;
 
 /*------------------------------------------------------------------------
  *  signaln -- signal a semaphore n times
@@ -13,7 +16,10 @@
  */
 SYSCALL signaln(int sem, int count)
 {
-	STATWORD ps;    
+	if (trace_sys_calls == 1) {
+	  syscalltrace_start(17);
+	}
+	STATWORD ps;
 	struct	sentry	*sptr;
 
 	disable(ps);
@@ -27,5 +33,8 @@ SYSCALL signaln(int sem, int count)
 			ready(getfirst(sptr->sqhead), RESCHNO);
 	resched();
 	restore(ps);
+	if (trace_sys_calls == 1) {
+	  syscalltrace_end(17);
+	}
 	return(OK);
 }

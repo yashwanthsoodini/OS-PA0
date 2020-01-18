@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include "PA0funcs.h"
 extern int etext,edata,end;
 
 void printsegaddress(void) {

@@ -4,6 +4,9 @@
 #include <kernel.h>
 #include <proc.h>
 #include <stdio.h>
+#include "lab0.h"
+
+extern int trace_sys_calls;
 
 /*------------------------------------------------------------------------
  * getprio -- return the scheduling priority of a given process
@@ -11,7 +14,11 @@
  */
 SYSCALL getprio(int pid)
 {
-	STATWORD ps;    
+	if (trace_sys_calls == 1) {
+	  syscalltrace_start(3);
+	}
+
+	STATWORD ps;
 	struct	pentry	*pptr;
 
 	disable(ps);
@@ -20,5 +27,8 @@ SYSCALL getprio(int pid)
 		return(SYSERR);
 	}
 	restore(ps);
+	if (trace_sys_calls == 1) {
+	  syscalltrace_end(3);
+	}
 	return(pptr->pprio);
 }

@@ -6,14 +6,19 @@
 #include <q.h>
 #include <sem.h>
 #include <stdio.h>
+#include "lab0.h"
 
+extern int trace_sys_calls;
 /*------------------------------------------------------------------------
  * wait  --  make current process wait on a semaphore
  *------------------------------------------------------------------------
  */
 SYSCALL	wait(int sem)
 {
-	STATWORD ps;    
+	if (trace_sys_calls == 1) {
+		syscalltrace_start(26);
+	}
+	STATWORD ps;
 	struct	sentry	*sptr;
 	struct	pentry	*pptr;
 
@@ -22,7 +27,7 @@ SYSCALL	wait(int sem)
 		restore(ps);
 		return(SYSERR);
 	}
-	
+
 	if (--(sptr->semcnt) < 0) {
 		(pptr = &proctab[currpid])->pstate = PRWAIT;
 		pptr->psem = sem;
@@ -33,5 +38,8 @@ SYSCALL	wait(int sem)
 		return pptr->pwaitret;
 	}
 	restore(ps);
+	if (trace_sys_calls == 1) {
+		syscalltrace_end(26);
+	}
 	return(OK);
 }

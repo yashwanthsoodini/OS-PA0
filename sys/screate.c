@@ -6,6 +6,9 @@
 #include <q.h>
 #include <sem.h>
 #include <stdio.h>
+#include "lab0.h"
+
+extern int trace_sys_calls;
 
 LOCAL int newsem();
 
@@ -15,7 +18,10 @@ LOCAL int newsem();
  */
 SYSCALL screate(int count)
 {
-	STATWORD ps;    
+	if (trace_sys_calls == 1) {
+	  syscalltrace_start(15);
+	}
+	STATWORD ps;
 	int	sem;
 
 	disable(ps);
@@ -26,6 +32,9 @@ SYSCALL screate(int count)
 	semaph[sem].semcnt = count;
 	/* sqhead and sqtail were initialized at system startup */
 	restore(ps);
+	if (trace_sys_calls == 1) {
+	  syscalltrace_end(15);
+	}
 	return(sem);
 }
 

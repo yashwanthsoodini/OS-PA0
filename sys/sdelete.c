@@ -6,14 +6,20 @@
 #include <q.h>
 #include <sem.h>
 #include <stdio.h>
+#include "lab0.h"
 
+extern int trace_sys_calls;
 /*------------------------------------------------------------------------
  * sdelete  --  delete a semaphore by releasing its table entry
  *------------------------------------------------------------------------
  */
 SYSCALL sdelete(int sem)
 {
-	STATWORD ps;    
+	if (trace_sys_calls == 1) {
+	  syscalltrace_start(11);
+	}
+
+	STATWORD ps;
 	int	pid;
 	struct	sentry	*sptr;
 
@@ -33,5 +39,8 @@ SYSCALL sdelete(int sem)
 		resched();
 	}
 	restore(ps);
+	if (trace_sys_calls == 1) {
+	  syscalltrace_end(11);
+	}
 	return(OK);
 }

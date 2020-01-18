@@ -6,14 +6,17 @@
 #include <q.h>
 #include <sleep.h>
 #include <stdio.h>
-
+#include "lab0.h"
 /*------------------------------------------------------------------------
  * sleep100  --  delay the caller for a time specified in 1/100 of seconds
  *------------------------------------------------------------------------
  */
 SYSCALL sleep100(int n)
 {
-	STATWORD ps;    
+	if (trace_sys_calls == 1) {
+		syscalltrace_start(20);
+	}
+	STATWORD ps;
 
 	if (n < 0  || clkruns==0)
 	         return(SYSERR);
@@ -28,5 +31,8 @@ SYSCALL sleep100(int n)
 	}
 	resched();
         restore(ps);
+	if (trace_sys_calls == 1) {
+		syscalltrace_end(20);
+	}
 	return(OK);
 }

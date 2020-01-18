@@ -5,6 +5,9 @@
 #include <proc.h>
 #include <q.h>
 #include <stdio.h>
+#include "lab0.h"
+
+extern int trace_sys_calls;
 
 /*------------------------------------------------------------------------
  * chprio  --  change the scheduling priority of a process
@@ -12,7 +15,11 @@
  */
 SYSCALL chprio(int pid, int newprio)
 {
-	STATWORD ps;    
+	if (trace_sys_calls == 1) {
+	  syscalltrace_start(1);
+	}
+
+	STATWORD ps;
 	struct	pentry	*pptr;
 
 	disable(ps);
@@ -23,5 +30,8 @@ SYSCALL chprio(int pid, int newprio)
 	}
 	pptr->pprio = newprio;
 	restore(ps);
+	if (trace_sys_calls == 1) {
+	  syscalltrace_end(1);
+	}
 	return(newprio);
 }

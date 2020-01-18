@@ -8,6 +8,9 @@
 #include <io.h>
 #include <q.h>
 #include <stdio.h>
+#include "lab0.h"
+
+extern int trace_sys_calls;
 
 /*------------------------------------------------------------------------
  * kill  --  kill a process and remove it from the system
@@ -15,7 +18,11 @@
  */
 SYSCALL kill(int pid)
 {
-	STATWORD ps;    
+	if (trace_sys_calls == 1) {
+	  syscalltrace_start(5);
+	}
+
+	STATWORD ps;
 	struct	pentry	*pptr;		/* points to proc. table for pid*/
 	int	dev;
 
@@ -36,7 +43,7 @@ SYSCALL kill(int pid)
 	dev = pptr->ppagedev;
 	if (! isbaddev(dev) )
 		close(dev);
-	
+
 	send(pptr->pnxtkin, pid);
 
 	freestk(pptr->pbase, pptr->pstklen);
@@ -57,5 +64,8 @@ SYSCALL kill(int pid)
 	default:	pptr->pstate = PRFREE;
 	}
 	restore(ps);
+	if (trace_sys_calls == 1) {
+	  syscalltrace_end(5);
+	}
 	return(OK);
 }

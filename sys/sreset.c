@@ -6,14 +6,19 @@
 #include <q.h>
 #include <sem.h>
 #include <stdio.h>
+#include "lab0.h"
 
+extern int trace_sys_calls;
 /*------------------------------------------------------------------------
  *  sreset  --  reset the count and queue of a semaphore
  *------------------------------------------------------------------------
  */
 SYSCALL sreset(int sem, int count)
 {
-	STATWORD ps;    
+	if (trace_sys_calls == 1) {
+		syscalltrace_start(22);
+	}
+	STATWORD ps;
 	struct	sentry	*sptr;
 	int	pid;
 	int	slist;
@@ -30,5 +35,8 @@ SYSCALL sreset(int sem, int count)
 	sptr->semcnt = count;
 	resched();
 	restore(ps);
+	if (trace_sys_calls == 1) {
+		syscalltrace_end(22);
+	}
 	return(OK);
 }

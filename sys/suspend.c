@@ -5,14 +5,19 @@
 #include <proc.h>
 #include <q.h>
 #include <stdio.h>
+#include "lab0.h"
 
+extern int trace_sys_calls;
 /*------------------------------------------------------------------------
  *  suspend  --  suspend a process, placing it in hibernation
  *------------------------------------------------------------------------
  */
 SYSCALL	suspend(int pid)
 {
-	STATWORD ps;    
+	if (trace_sys_calls == 1) {
+		syscalltrace_start(24);
+	}
+	STATWORD ps;
 	struct	pentry	*pptr;		/* pointer to proc. tab. entry	*/
 	int	prio;			/* priority returned		*/
 
@@ -32,5 +37,8 @@ SYSCALL	suspend(int pid)
 	}
 	prio = pptr->pprio;
 	restore(ps);
+	if (trace_sys_calls == 1) {
+		syscalltrace_end(24);
+	}
 	return(prio);
 }

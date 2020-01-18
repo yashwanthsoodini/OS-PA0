@@ -6,14 +6,19 @@
 #include <q.h>
 #include <sleep.h>
 #include <stdio.h>
+#include "lab0.h"
 
+extern int trace_sys_calls;
 /*------------------------------------------------------------------------
  * unsleep  --  remove  process from the sleep queue prematurely
  *------------------------------------------------------------------------
  */
 SYSCALL	unsleep(int pid)
 {
-	STATWORD ps;    
+	if (trace_sys_calls == 1) {
+		syscalltrace_start(25);
+	}
+	STATWORD ps;
 	struct	pentry	*pptr;
 	struct	qent	*qptr;
 	int	remain;
@@ -36,5 +41,8 @@ SYSCALL	unsleep(int pid)
 	else
 		slnempty = FALSE;
         restore(ps);
+	if (trace_sys_calls == 1) {
+		syscalltrace_end(25);
+	}
 	return(OK);
 }
