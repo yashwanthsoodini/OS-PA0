@@ -1,0 +1,150 @@
+1)Assuming the XINU text begins at address 0x0, draw a rough diagram of XINU's
+memory layout with addresses derived from your experimental measurements.
+Include the information you uncovered from running your version of
+printsegaddress() and printprocstks().
+
+A:
+
+|-----------------------| <----- Main Process's Base pointer (0x00ffeff8)
+|		Main Process Stack	|
+|                       |
+|                       |
+|	            	        | <----- Main Process's Stack Pointer (0x00ffef80)
+|                       |
+|-----------------------| <----- Main Process's Stack limit (0x00ffdffc)
+|						            |
+|-----------------------| <----- Process A's Base pointer (0x00ffdff8)
+|		Process A Stack			|
+|                       |
+|                       |
+|				                | <----- Process A's Stack Pointer (0x00ffdf38)
+|                       |
+|-----------------------| <----- Process A's Stack limit (0x00ffcffc)
+|						            |
+|-----------------------| <----- Process B's Base pointer (0x00ffcff8)
+|		Process B Stack			|
+|                       |
+|                       |
+|		                    | <----- Process B's Stack Pointer (0x00ffcf38)
+|                       |
+|-----------------------| <----- Process B's Stack limit (0x00ffbffc)
+|			  		.           |
+|			  		.           |
+|			  		.           |
+|			  		.           |
+|-----------------------|
+|   Heap Segment        |
+|                       |
+|                       |
+|-----------------------| <----- ebss (0x0002b4d4)
+|		BSS Segment		      |
+|						            |
+|						            |
+|-----------------------| <----- edata (0x00021878)
+|		Data Segment        |
+|			                  |
+|			                  |
+|-----------------------| <----- etext (0x0001cf4c)
+|		Text Segment	      |
+|						            |
+|						            |
+|-----------------------| <----- Start (0x00000000)
+
+
+2)What is the difference in stack top address before and after calling
+printtos() ? Draw a diagram to illustrate what are the contents of the items
+pushed into the stack between these two time points.
+
+A:
+
+Stack Top Address before calling printtos() : 0x00ffefb0
+Stack Top Address after calling printtos() : 0x00ffefa8
+
+There is a difference of 8 bytes between the two addresses. The base pointer of
+the caller function is pushed onto the stack, which takes 4 bytes. The remaining
+4 bytes are for the return address of the callee function.
+
+|-------------------| <------------ 0x00ffefa8
+|					          |
+|		EBP of          |
+|   caller function |
+|					          |
+|-------------------| <------------ 0x00ffefac
+|					          |
+|		Return Address	|
+|   of              |
+|		Callee function |
+|					          |
+|-------------------| <------------ 0x00ffefb0
+
+
+3) Which byte order is adopted in the host machine that we are using ? How did
+you find out ?
+
+A:
+
+The host machine adopts the Little-Endian byte ordering, ie., the least
+significant byte is stored at the lowest address and the other bytes follow in
+the increasing order of significance.
+
+It can be easily found out by running the following code:
+
+int main (void)
+{
+  uint32_t X = 0x0A0B0C0D; // Initialize an unsigned 32-bit integer.
+  char *p = (char *) &X; // A pointer to the first byte of X.
+  int i=0;
+  for (i = 0; i < 4; i++)
+  {
+    printf("\n%02x", (unsigned int) p[i]);
+  }
+}
+
+The above program will output:
+0d
+0c
+0b
+0a
+
+which indicates that the least significant byte is stored at the lowest address.
+
+
+4) Briefly describe the mov, push, pusha, pop, and popa instructions in the x86.
+
+A:
+
+mov:  The 'mov' instruction is used to move data between registers and memory.
+      The instruction has two operands: the first operand specifies the source
+      and the second operand specifies the destination.
+
+      Example: mov %esp, %ebp
+
+push: The push instruction is used to place data onto the top of the stack
+      supported by the hardware in memory. It has only one operand.
+
+      Example: push %eax
+
+pusha:The pusha instruction is used to push the contents of all the general
+      purpose registers onto the top of the stack. It has no operands.
+
+pop:  The pop instruction is used to remove the 4 byte data element from the
+      top of the stack and move it to the specified register of memory location.
+      It has only one operand.
+
+      Example: pop eax
+
+popa: The popa instruction is used to pop the contents of all the general
+      purpose registers.
+
+
+5) In a stack frame, local variables are stored below the top of the stack. In
+task 3, does your result show all the local variables declared in your printtos
+function? If not, can you explain that?
+
+A:
+
+No the result does not show local variables declared in the function. This is
+because the callee function will follow the calling convention the following
+way: it will allocate make space on the stack for the local variables first and
+then it will push the callee-saved registers onto the stack. Therefore, the
+elements below the top of the stack will not always be the local variables.
