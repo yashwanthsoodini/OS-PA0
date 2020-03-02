@@ -1,3 +1,3 @@
 # OS-PA0
 
-Getting Started with XINU OS.
+Getting acquainted with XINU.
